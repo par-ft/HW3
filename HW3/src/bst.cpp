@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <queue>
 #include <string>
+#include <vector>
 
 std::ostream &operator<<(std::ostream &os, const BST::Node &node)
 {
@@ -314,4 +315,74 @@ BST::BST(const BST &bst) : root{nullptr}
             { nodes.push_back(node); });
     for (auto &node : nodes)
         add_node(node->value);
+}
+
+BST &BST::operator=(const BST &bst)
+{
+    if (this != &bst)
+    {
+        std::vector<Node *> old_nodes;
+        bfs([&old_nodes](Node *&node)
+            { old_nodes.push_back(node); });
+        for (auto &node : old_nodes)
+            delete node;
+
+        root = nullptr;
+
+        std::vector<Node *> new_nodes;
+        bst.bfs([&new_nodes](Node *&node)
+                { new_nodes.push_back(node); });
+        for (auto &node : new_nodes)
+            add_node(node->value);
+    }
+
+    return *this;
+}
+
+BST &BST::operator=(BST &&bst)
+{
+    if (this != &bst)
+    {
+        std::vector<Node *> nodes;
+        bfs([&nodes](Node *&node)
+            { nodes.push_back(node); });
+        for (auto &node : nodes)
+            delete node;
+
+        root = bst.root;
+        bst.root = nullptr;
+    }
+
+    return *this;
+}
+
+BST::BST(BST &&bst)
+{
+    root = bst.root;
+    bst.root = nullptr;
+}
+
+BST::BST(std::initializer_list<int> args) : root{nullptr}
+{
+    for (auto node : args)
+        add_node(node);
+}
+
+const BST &BST::operator++()
+{
+    bfs([](Node *&node)
+        { node->value++; });
+
+    return *this;
+}
+
+const BST BST::operator++(int)
+{
+    BST bst{};
+
+    bfs([&bst](Node *&node)
+        {bst.add_node(node->value);
+        node->value++; });
+
+    return bst;
 }

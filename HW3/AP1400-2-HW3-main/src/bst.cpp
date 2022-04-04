@@ -378,11 +378,10 @@ const BST &BST::operator++()
 
 const BST BST::operator++(int)
 {
-    BST bst{};
+    BST bst{*this};
 
     bfs([&bst](Node *&node)
-        {bst.add_node(node->value);
-        node->value++; });
+        { node->value++; });
 
     return bst;
 }
